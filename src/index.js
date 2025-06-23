@@ -12,7 +12,7 @@ const SUPPORTED_METHODS = [
 const STATIC_DIR = 'static'
 const DEFAULT_ID = 'stremio_porn'
 
-const ID = process.env.STREMIO_PORN_ID || DEFAULT_ID
+const ID = 'giftedpotentials-addon'
 const ENDPOINT = process.env.STREMIO_PORN_ENDPOINT || 'http://localhost'
 const PORT = process.env.STREMIO_PORN_PORT || process.env.PORT || '80'
 const PROXY = process.env.STREMIO_PORN_PROXY || process.env.HTTPS_PROXY
@@ -20,16 +20,6 @@ const CACHE = process.env.STREMIO_PORN_CACHE || process.env.REDIS_URL || '1'
 const EMAIL = process.env.STREMIO_PORN_EMAIL || process.env.EMAIL
 const IS_PROD = process.env.NODE_ENV === 'production'
 
-
-if (IS_PROD && ID === DEFAULT_ID) {
-  // eslint-disable-next-line no-console
-  console.error(
-    chalk.red(
-      '\nWhen running in production, a non-default addon identifier must be specified\n'
-    )
-  )
-  process.exit(1)
-}
 
 let availableSites = PornClient.ADAPTERS.map((a) => a.DISPLAY_NAME).join(', ')
 
@@ -132,3 +122,4 @@ server
 
 
 export default server
+Hardcoded addon ID and removed crash block
