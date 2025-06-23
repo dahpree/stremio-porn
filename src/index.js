@@ -3,7 +3,7 @@ import Stremio from 'stremio-addons'
 import serveStatic from 'serve-static'
 import chalk from 'chalk'
 import pkg from '../package.json'
-import PornClient from './PornClient'
+import PornClient from './PornClient.js'
 
 
 const SUPPORTED_METHODS = [
