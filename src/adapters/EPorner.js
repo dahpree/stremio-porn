@@ -1,6 +1,6 @@
 import { xml2js } from 'xml-js'
 import cheerio from 'cheerio'
-import BaseAdapter from './BaseAdapter'
+import BaseAdapter from './BaseAdapter.js'
 
 
 const BASE_URL = 'https://www.eporner.com'
