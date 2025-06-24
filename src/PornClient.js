@@ -9,23 +9,18 @@ import SpankWire from './adapters/SpankWire.js'
 import PornCom from './adapters/PornCom.js'
 import Chaturbate from './adapters/Chaturbate.js'
 
-// EPorner has restricted video downloads to 30 per day per guest
-// import EPorner from './adapters/EPorner'
-
-
 const ID = 'porn_id'
 const SORT_PROP_PREFIX = 'popularities.porn.'
 const CACHE_PREFIX = 'stremio-porn|'
-// Making multiple requests to multiple adapters for different types
-// and then aggregating them is a lot of work,
-// so we only support 1 adapter per request for now.
 const MAX_ADAPTERS_PER_REQUEST = 1
+
 const ADAPTERS = [TastyBlacks, PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
 const SORTS = ADAPTERS.map(({ name, DISPLAY_NAME, SUPPORTED_TYPES }) => ({
   name: `Porn: ${DISPLAY_NAME}`,
   prop: `${SORT_PROP_PREFIX}${name}`,
   types: SUPPORTED_TYPES,
 }))
+
 const METHODS = {
   'stream.find': {
     adapterMethod: 'getStreams',
@@ -52,7 +47,6 @@ const METHODS = {
     expectsArray: false,
   },
 }
-
 
 function makePornId(adapter, type, id) {
   return `${ID}:${adapter}-${type}-${id}`
@@ -85,15 +79,11 @@ function normalizeRequest(request) {
     let { adapter, type, id } = parsePornId(query.porn_id)
 
     if (type && query.type && type !== query.type) {
-      throw new Error(
-        `Request query and porn_id types do not match (${type}, ${query.type})`
-      )
+      throw new Error(`Request query and porn_id types do not match (${type}, ${query.type})`)
     }
 
     if (adapters.length && !adapters.includes(adapter)) {
-      throw new Error(
-        `Request sort and porn_id adapters do not match (${adapter})`
-      )
+      throw new Error(`Request sort and porn_id adapters do not match (${adapter})`)
     }
 
     adapters = [adapter]
@@ -111,13 +101,11 @@ function normalizeResult(adapter, item, idProp = 'id') {
 }
 
 function mergeResults(results) {
-  // TODO: limit
   return results.reduce((results, adapterResults) => {
     results.push(...adapterResults)
     return results
   }, [])
 }
-
 
 class PornClient {
   static ID = ID
@@ -127,6 +115,8 @@ class PornClient {
   constructor(options) {
     let httpClient = new HttpClient(options)
     this.adapters = ADAPTERS.map((Adapter) => new Adapter(httpClient))
+
+    console.log('Adapters loaded:', this.adapters.map(a => a.constructor.DISPLAY_NAME))
 
     if (options.cache === '1') {
       this.cache = cacheManager.caching({ store: 'memory' })
@@ -165,13 +155,12 @@ class PornClient {
     })
   }
 
-  // Aggregate method that dispatches requests to matching adapters
   async _invokeMethod(methodName, rawRequest, idProp) {
     let request = normalizeRequest(rawRequest)
     let adapters = this._getAdaptersForRequest(request)
 
     if (!adapters.length) {
-      throw new Error('Couldn\'t find suitable adapters for a request')
+      throw new Error(\"Couldn't find suitable adapters for a request\")
     }
 
     let results = []
@@ -186,8 +175,6 @@ class PornClient {
     return mergeResults(results, request.limit)
   }
 
-  // This is a public wrapper around the private method
-  // that implements caching and result normalization
   async invokeMethod(methodName, rawRequest) {
     let { adapterMethod, cacheTtl, idProp, expectsArray } = METHODS[methodName]
     let invokeMethod = async () => {
@@ -198,15 +185,12 @@ class PornClient {
 
     if (this.cache) {
       let cacheKey = CACHE_PREFIX + JSON.stringify(rawRequest)
-      let cacheOptions = {
-        ttl: cacheTtl,
-      }
+      let cacheOptions = { ttl: cacheTtl }
       return this.cache.wrap(cacheKey, invokeMethod, cacheOptions)
     } else {
       return invokeMethod()
     }
   }
 }
-
 
 export default PornClient
