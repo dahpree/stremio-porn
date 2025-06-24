@@ -7,8 +7,12 @@ class TastyBlacks extends BaseAdapter {
   static ITEMS_PER_PAGE = 24
 
   async find({ query }) {
-    const search = query.search || ''
-    const url = `https://www.tastyblacks.com/en/search/${encodeURIComponent(search)}/latest/`
+    const search = (query.search || '').toLowerCase().replace(/\s+/g, '-')
+    const category = query.category || 'ebony'
+    const sort = query.sort || 'new'
+    const length = query.length || '' // use 'long' or leave blank
+
+    const url = `https://tastyblacks.com/en/13/${category}/${length}/${sort}/`
 
     const html = await this._getHtml(url)
     const $ = cheerio.load(html)
@@ -34,7 +38,7 @@ class TastyBlacks extends BaseAdapter {
   }
 
   async getItem({ id }) {
-    const url = `https://www.tastyblacks.com/en/video/${id}/`
+    const url = `https://www.tastyblacks.com/video/${id}/`
     const html = await this._getHtml(url)
     const $ = cheerio.load(html)
 
@@ -53,7 +57,7 @@ class TastyBlacks extends BaseAdapter {
   }
 
   async getStreams({ id }) {
-    const url = `https://www.tastyblacks.com/en/video/${id}/`
+    const url = `https://www.tastyblacks.com/video/${id}/`
     const html = await this._getHtml(url)
     const $ = cheerio.load(html)
 
@@ -64,4 +68,3 @@ class TastyBlacks extends BaseAdapter {
 }
 
 export default TastyBlacks
-
