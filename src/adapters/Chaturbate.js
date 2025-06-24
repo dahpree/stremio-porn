@@ -1,5 +1,5 @@
-import cheerio from 'cheerio'
-import BaseAdapter from './BaseAdapter'
+import cheerio from 'cheerio.js'
+import BaseAdapter from './BaseAdapter.js'
 
 
 const BASE_URL = 'https://chaturbate.com'
