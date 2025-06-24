@@ -8,9 +8,15 @@ class TastyBlacks extends BaseAdapter {
 
   async find({ query }) {
     const search = query.search || ''
-    const url = `https://www.tastyblacks.com/search/${encodeURIComponent(search)}/latest/`
+    const url = `https://www.tastyblacks.com/en/search/${encodeURIComponent(search)}/latest/`
 
-    const html = await this._getHtml(url)
+    const html = await this._getHtml(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept-Language': 'en-US,en;q=0.9',
+      }
+    })
+
     const $ = cheerio.load(html)
     const items = []
 
@@ -34,8 +40,13 @@ class TastyBlacks extends BaseAdapter {
   }
 
   async getItem({ id }) {
-    const url = `https://www.tastyblacks.com/video/${id}/`
-    const html = await this._getHtml(url)
+    const url = `https://www.tastyblacks.com/en/video/${id}/`
+    const html = await this._getHtml(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept-Language': 'en-US,en;q=0.9',
+      }
+    })
     const $ = cheerio.load(html)
 
     const title = $('h1').text().trim()
@@ -53,8 +64,13 @@ class TastyBlacks extends BaseAdapter {
   }
 
   async getStreams({ id }) {
-    const url = `https://www.tastyblacks.com/video/${id}/`
-    const html = await this._getHtml(url)
+    const url = `https://www.tastyblacks.com/en/video/${id}/`
+    const html = await this._getHtml(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept-Language': 'en-US,en;q=0.9',
+      }
+    })
     const $ = cheerio.load(html)
 
     const videoUrl = $('video source').attr('src')
@@ -62,5 +78,8 @@ class TastyBlacks extends BaseAdapter {
     return videoUrl ? [{ url: videoUrl }] : []
   }
 }
+
+export default TastyBlacks
+
 
 export default TastyBlacks
