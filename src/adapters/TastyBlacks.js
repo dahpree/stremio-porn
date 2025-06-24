@@ -3,46 +3,29 @@ import cheerio from 'cheerio'
 
 class TastyBlacks extends BaseAdapter {
   static DISPLAY_NAME = 'TastyBlacks'
+  static SUPPORTED_TYPES = ['movie']
   static ITEMS_PER_PAGE = 24
-  static VIDEO_ID_PARAMETER = 'id'
 
-  _makeMethodUrl(method) {
-    const base = 'https://www.tastyblacks.com'
+  async find({ query }) {
+    const search = query.search || ''
+    const url = `https://www.tastyblacks.com/search/${encodeURIComponent(search)}/latest/`
 
-    if (method === 'searchVideos') return `${base}/search?search_query=`
-    if (method === 'getVideoById') return `${base}/video/`
-
-    throw new Error(`Unsupported method: ${method}`)
-  }
-
-  _makeEmbedUrl(id) {
-    return `https://www.tastyblacks.com/embed/${id}`
-  }
-
-  _extractStreamsFromEmbed(body) {
-    const match = body.match(/"video_url"\s*:\s*"([^"]+)"/)
-    if (!match) throw new Error('Could not extract stream URL')
-    return [{ url: match[1] }]
-  }
-
-  async searchVideos(query, page = 1) {
-    const url = `${this._makeMethodUrl('searchVideos')}${encodeURIComponent(query)}&page=${page}`
-    const res = await this._fetch(url)
-    const $ = cheerio.load(res.body)
-
+    const html = await this._getHtml(url)
+    const $ = cheerio.load(html)
     const items = []
-    $('.video-item').each((_, el) => {
-      const anchor = $(el).find('a').attr('href')
-      const title = $(el).find('.title').text().trim()
-      const img = $(el).find('img').attr('src')
-      const id = anchor?.split('/video/')[1]?.split('/')[0]
+
+    $('.video').each((i, el) => {
+      const title = $(el).find('.video-title').text().trim()
+      const href = $(el).find('a').attr('href')
+      const id = href?.split('/video/')[1]?.split('/')[0]
+      const poster = $(el).find('img').attr('data-src') || $(el).find('img').attr('src')
 
       if (id) {
         items.push({
           id,
+          type: 'movie',
           name: title,
-          poster: img,
-          type: 'movie'
+          poster,
         })
       }
     })
@@ -50,15 +33,33 @@ class TastyBlacks extends BaseAdapter {
     return items
   }
 
-  async getVideoById(id) {
-    const url = `${this._makeMethodUrl('getVideoById')}${id}`
-    const res = await this._fetch(url)
-    const streams = this._extractStreamsFromEmbed(res.body)
+  async getItem({ id }) {
+    const url = `https://www.tastyblacks.com/video/${id}/`
+    const html = await this._getHtml(url)
+    const $ = cheerio.load(html)
+
+    const title = $('h1').text().trim()
+    const poster = $('video').attr('poster')
+    const videoUrl = $('video source').attr('src')
 
     return {
       id,
-      streams
+      type: 'movie',
+      name: title,
+      poster,
+      background: poster,
+      videos: videoUrl ? [{ url: videoUrl }] : [],
     }
+  }
+
+  async getStreams({ id }) {
+    const url = `https://www.tastyblacks.com/video/${id}/`
+    const html = await this._getHtml(url)
+    const $ = cheerio.load(html)
+
+    const videoUrl = $('video source').attr('src')
+
+    return videoUrl ? [{ url: videoUrl }] : []
   }
 }
 
