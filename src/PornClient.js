@@ -160,7 +160,7 @@ class PornClient {
     let adapters = this._getAdaptersForRequest(request)
 
     if (!adapters.length) {
-      throw new Error(\"Couldn't find suitable adapters for a request\")
+      throw new Error("Couldn't find suitable adapters for a request")
     }
 
     let results = []
