@@ -1,12 +1,12 @@
 import cacheManager from 'cache-manager'
 import redisStore from 'cache-manager-redis-store'
 import HttpClient from './HttpClient.js'
-import PornHub from './adapters/PornHub'
-import RedTube from './adapters/RedTube'
-import YouPorn from './adapters/YouPorn'
-import SpankWire from './adapters/SpankWire'
-import PornCom from './adapters/PornCom'
-import Chaturbate from './adapters/Chaturbate'
+import PornHub from './adapters/PornHub.js'
+import RedTube from './adapters/RedTube.js'
+import YouPorn from './adapters/YouPorn.js'
+import SpankWire from './adapters/SpankWire.js'
+import PornCom from './adapters/PornCom.js'
+import Chaturbate from './adapters/Chaturbate.js'
 
 // EPorner has restricted video downloads to 30 per day per guest
 // import EPorner from './adapters/EPorner'
