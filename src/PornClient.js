@@ -9,12 +9,15 @@ import SpankWire from './adapters/SpankWire.js'
 import PornCom from './adapters/PornCom.js'
 import Chaturbate from './adapters/Chaturbate.js'
 
+// const EPorner = ... (disabled to avoid limits)
+
 const ID = 'porn_id'
 const SORT_PROP_PREFIX = 'popularities.porn.'
 const CACHE_PREFIX = 'stremio-porn|'
 const MAX_ADAPTERS_PER_REQUEST = 1
 
 const ADAPTERS = [TastyBlacks, PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
+
 const SORTS = ADAPTERS.map(({ name, DISPLAY_NAME, SUPPORTED_TYPES }) => ({
   name: `Porn: ${DISPLAY_NAME}`,
   prop: `${SORT_PROP_PREFIX}${name}`,
@@ -53,7 +56,7 @@ function makePornId(adapter, type, id) {
 }
 
 function parsePornId(pornId) {
-  let [adapter, type, id] = pornId.split(':').pop().split('-')
+  const [adapter, type, id] = pornId.split(':').pop().split('-')
   return { adapter, type, id }
 }
 
@@ -69,21 +72,19 @@ function normalizeRequest(request) {
 
   if (typeof query === 'string') {
     query = { search: query }
-  } else if (query) {
-    query = { ...query }
   } else {
-    query = {}
+    query = { ...query }
   }
 
   if (query.porn_id) {
-    let { adapter, type, id } = parsePornId(query.porn_id)
+    const { adapter, type, id } = parsePornId(query.porn_id)
 
     if (type && query.type && type !== query.type) {
-      throw new Error(`Request query and porn_id types do not match (${type}, ${query.type})`)
+      throw new Error(`Type mismatch: ${type} ≠ ${query.type}`)
     }
 
     if (adapters.length && !adapters.includes(adapter)) {
-      throw new Error(`Request sort and porn_id adapters do not match (${adapter})`)
+      throw new Error(`Sort/adapter mismatch: ${adapter}`)
     }
 
     adapters = [adapter]
@@ -95,15 +96,15 @@ function normalizeRequest(request) {
 }
 
 function normalizeResult(adapter, item, idProp = 'id') {
-  let newItem = { ...item }
+  const newItem = { ...item }
   newItem[idProp] = makePornId(adapter.constructor.name, item.type, item.id)
   return newItem
 }
 
 function mergeResults(results) {
-  return results.reduce((results, adapterResults) => {
-    results.push(...adapterResults)
-    return results
+  return results.reduce((acc, r) => {
+    acc.push(...r)
+    return acc
   }, [])
 }
 
@@ -113,10 +114,8 @@ class PornClient {
   static SORTS = SORTS
 
   constructor(options) {
-    let httpClient = new HttpClient(options)
+    const httpClient = new HttpClient(options)
     this.adapters = ADAPTERS.map((Adapter) => new Adapter(httpClient))
-
-    console.log('Adapters loaded:', this.adapters.map(a => a.constructor.DISPLAY_NAME))
 
     if (options.cache === '1') {
       this.cache = cacheManager.caching({ store: 'memory' })
@@ -129,67 +128,54 @@ class PornClient {
   }
 
   _getAdaptersForRequest(request) {
-    let { query, adapters } = request
-    let { type } = query
-    let matchingAdapters = this.adapters
+    const { query, adapters } = request
+    const { type } = query
+    let matching = this.adapters
 
     if (adapters.length) {
-      matchingAdapters = matchingAdapters.filter((adapter) => {
-        return adapters.includes(adapter.constructor.name)
-      })
+      matching = matching.filter(a => adapters.includes(a.constructor.name))
     }
 
     if (type) {
-      matchingAdapters = matchingAdapters.filter((adapter) => {
-        return adapter.constructor.SUPPORTED_TYPES.includes(type)
-      })
+      matching = matching.filter(a => a.constructor.SUPPORTED_TYPES.includes(type))
     }
 
-    return matchingAdapters.slice(0, MAX_ADAPTERS_PER_REQUEST)
+    return matching.slice(0, MAX_ADAPTERS_PER_REQUEST)
   }
 
   async _invokeAdapterMethod(adapter, method, request, idProp) {
-    let results = await adapter[method](request)
-    return results.map((result) => {
-      return normalizeResult(adapter, result, idProp)
-    })
+    const results = await adapter[method](request)
+    return results.map(item => normalizeResult(adapter, item, idProp))
   }
 
   async _invokeMethod(methodName, rawRequest, idProp) {
-    let request = normalizeRequest(rawRequest)
-    let adapters = this._getAdaptersForRequest(request)
+    const request = normalizeRequest(rawRequest)
+    const adapters = this._getAdaptersForRequest(request)
 
-    if (!adapters.length) {
-      throw new Error("Couldn't find suitable adapters for a request")
+    if (!adapters.length) throw new Error("Couldn't find suitable adapters for a request")
+
+    const results = []
+    for (const adapter of adapters) {
+      const res = await this._invokeAdapterMethod(adapter, methodName, request, idProp)
+      results.push(res)
     }
 
-    let results = []
-
-    for (let adapter of adapters) {
-      let adapterResults = await this._invokeAdapterMethod(
-        adapter, methodName, request, idProp
-      )
-      results.push(adapterResults)
-    }
-
-    return mergeResults(results, request.limit)
+    return mergeResults(results)
   }
 
   async invokeMethod(methodName, rawRequest) {
-    let { adapterMethod, cacheTtl, idProp, expectsArray } = METHODS[methodName]
-    let invokeMethod = async () => {
+    const { adapterMethod, cacheTtl, idProp, expectsArray } = METHODS[methodName]
+    const execute = async () => {
       let result = await this._invokeMethod(adapterMethod, rawRequest, idProp)
-      result = expectsArray ? result : result[0]
-      return result
+      return expectsArray ? result : result[0]
     }
 
     if (this.cache) {
-      let cacheKey = CACHE_PREFIX + JSON.stringify(rawRequest)
-      let cacheOptions = { ttl: cacheTtl }
-      return this.cache.wrap(cacheKey, invokeMethod, cacheOptions)
-    } else {
-      return invokeMethod()
+      const key = CACHE_PREFIX + JSON.stringify(rawRequest)
+      return this.cache.wrap(key, execute, { ttl: cacheTtl })
     }
+
+    return execute()
   }
 }
 
