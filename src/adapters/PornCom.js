@@ -1,4 +1,4 @@
-import BaseAdapter from './BaseAdapter'
+import BaseAdapter from './BaseAdapter.js'
 
 
 const BASE_URL = 'https://www.porn.com'
