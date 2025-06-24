@@ -2,7 +2,7 @@ import http from 'http'
 import Stremio from 'stremio-addons'
 import serveStatic from 'serve-static'
 import chalk from 'chalk'
-import pkg from '../package.json'
+import pkg from '../package.json' assert { type: 'json' }
 import PornClient from './PornClient.js'
 
 
