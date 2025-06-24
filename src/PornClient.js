@@ -1,6 +1,8 @@
 import cacheManager from 'cache-manager'
 import redisStore from 'cache-manager-redis-store'
 import HttpClient from './HttpClient.js'
+import TastyBlacks from './adapters/TastyBlacks.js'
+import PornHub from './adapters/PornHub.js'
 import PornHub from './adapters/PornHub.js'
 import RedTube from './adapters/RedTube.js'
 import YouPorn from './adapters/YouPorn.js'
@@ -19,7 +21,7 @@ const CACHE_PREFIX = 'stremio-porn|'
 // and then aggregating them is a lot of work,
 // so we only support 1 adapter per request for now.
 const MAX_ADAPTERS_PER_REQUEST = 1
-const ADAPTERS = [PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
+const ADAPTERS = [TastyBlacks, PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
 const SORTS = ADAPTERS.map(({ name, DISPLAY_NAME, SUPPORTED_TYPES }) => ({
   name: `Porn: ${DISPLAY_NAME}`,
   prop: `${SORT_PROP_PREFIX}${name}`,
