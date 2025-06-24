@@ -1,4 +1,4 @@
-import cheerio from 'cheerio.js'
+import cheerio from 'cheerio'
 import BaseAdapter from './BaseAdapter.js'
 
 
