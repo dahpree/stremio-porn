@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "stremio-porn",
   "version": "0.0.4",
   "description": "Stremio addon that provides videos and webcam streams from various porn sites",
