@@ -4,29 +4,28 @@ import cheerio from 'cheerio'
 class EbonyGalore extends BaseAdapter {
   static DISPLAY_NAME = 'EbonyGalore'
   static SUPPORTED_TYPES = ['movie']
-  static ITEMS_PER_PAGE = 24
 
   async find({ query }) {
     const search = query.search || ''
-    const url = `https://www.ebonygalore.com/search/${encodeURIComponent(search)}/latest/`
+    const url = `https://www.ebonygalore.com/search/${encodeURIComponent(search)}/`
 
     const html = await this._getHtml(url)
     const $ = cheerio.load(html)
     const items = []
 
-    $('.thumb').each((i, el) => {
-      const aTag = $(el).find('a')
-      const href = aTag.attr('href')
+    $('.item').each((i, el) => {
+      const anchor = $(el).find('a')
+      const href = anchor.attr('href')
+      const title = anchor.attr('title') || $(el).find('.video-title').text().trim()
+      const img = $(el).find('img').attr('data-src') || $(el).find('img').attr('src')
       const id = href?.split('/video/')[1]?.split('/')[0]
-      const title = aTag.attr('title')?.trim()
-      const poster = $(el).find('img').attr('data-src') || $(el).find('img').attr('src')
 
-      if (id && title) {
+      if (id) {
         items.push({
           id,
           type: 'movie',
           name: title,
-          poster,
+          poster: img,
         })
       }
     })
@@ -40,7 +39,7 @@ class EbonyGalore extends BaseAdapter {
     const $ = cheerio.load(html)
 
     const title = $('h1').text().trim()
-    const poster = $('video').attr('poster')
+    const poster = $('video').attr('poster') || $('meta[property="og:image"]').attr('content')
     const videoUrl = $('video source').attr('src')
 
     return {
@@ -59,7 +58,6 @@ class EbonyGalore extends BaseAdapter {
     const $ = cheerio.load(html)
 
     const videoUrl = $('video source').attr('src')
-
     return videoUrl ? [{ url: videoUrl }] : []
   }
 }
