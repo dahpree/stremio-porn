@@ -2,6 +2,7 @@ import cacheManager from 'cache-manager'
 import redisStore from 'cache-manager-redis-store'
 import HttpClient from './HttpClient.js'
 import TastyBlacks from './adapters/TastyBlacks.js'
+import EbonyGalore from './adapters/EbonyGalore.js'
 import PornHub from './adapters/PornHub.js'
 import RedTube from './adapters/RedTube.js'
 import YouPorn from './adapters/YouPorn.js'
@@ -16,7 +17,7 @@ const SORT_PROP_PREFIX = 'popularities.porn.'
 const CACHE_PREFIX = 'stremio-porn|'
 const MAX_ADAPTERS_PER_REQUEST = 1
 
-const ADAPTERS = [TastyBlacks, PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
+const ADAPTERS = [TastyBlacks, EbonyGalore, PornHub, RedTube, YouPorn, SpankWire, PornCom, Chaturbate]
 
 const SORTS = ADAPTERS.map(({ name, DISPLAY_NAME, SUPPORTED_TYPES }) => ({
   name: `Porn: ${DISPLAY_NAME}`,
