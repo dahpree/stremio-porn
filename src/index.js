@@ -12,7 +12,7 @@ const STATIC_DIR = 'static'
 const DEFAULT_ID = 'stremio_porn'
 
 const ID = 'giftedpotentials-addon'
-const ENDPOINT = process.env.STREMIO_PORN_ENDPOINT || 'http://localhost'
+const ENDPOINT = 'https://stremio-porn-jrm3.onrender.com'
 const PORT = process.env.STREMIO_PORN_PORT || process.env.PORT || '80'
 const PROXY = process.env.STREMIO_PORN_PROXY || process.env.HTTPS_PROXY
 const CACHE = process.env.STREMIO_PORN_CACHE || process.env.REDIS_URL || '1'
