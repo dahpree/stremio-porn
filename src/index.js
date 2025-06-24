@@ -2,7 +2,6 @@ import http from 'http'
 import Stremio from 'stremio-addons'
 import serveStatic from 'serve-static'
 import chalk from 'chalk'
-import pkg from '../package.json' assert { type: 'json' }
 import PornClient from './PornClient.js'
 
 
@@ -26,7 +25,7 @@ let availableSites = PornClient.ADAPTERS.map((a) => a.DISPLAY_NAME).join(', ')
 const MANIFEST = {
   name: 'Porn',
   id: ID,
-  version: pkg.version,
+  version: "0.0.4", // ← hardcoded manually
   description: `\
 Time to unsheathe your sword! \
 Watch porn videos and webcam streams from ${availableSites}\
