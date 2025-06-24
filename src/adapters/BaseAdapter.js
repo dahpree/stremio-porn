@@ -1,4 +1,4 @@
-import Bottleneck from 'bottleneck'
+import Bottleneck from 'bottleneck.js'
 
 
 // Contains some common methods as well as public wrappers
