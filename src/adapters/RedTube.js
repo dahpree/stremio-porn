@@ -1,4 +1,4 @@
-import HubTrafficAdapter from './HubTrafficAdapter'
+import HubTrafficAdapter from './HubTrafficAdapter.js'
 
 
 class RedTube extends HubTrafficAdapter {
