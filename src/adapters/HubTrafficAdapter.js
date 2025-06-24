@@ -1,5 +1,5 @@
 import { URL } from 'url'
-import BaseAdapter from './BaseAdapter'
+import BaseAdapter from './BaseAdapter.js'
 
 
 // https://www.hubtraffic.com/
