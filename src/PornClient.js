@@ -1,6 +1,6 @@
 import cacheManager from 'cache-manager'
 import redisStore from 'cache-manager-redis-store'
-import HttpClient from './HttpClient'
+import HttpClient from './HttpClient.js'
 import PornHub from './adapters/PornHub'
 import RedTube from './adapters/RedTube'
 import YouPorn from './adapters/YouPorn'
